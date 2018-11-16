@@ -17,6 +17,8 @@
 \usepackage{subfigure}
 \usepackage{enumitem}
 \usepackage{bm}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 \usepackage{url}
 \usepackage[stable]{footmisc}
 \usepackage{booktabs}
@@ -24,6 +26,15 @@
 \usepackage{indentfirst}
 %\usepackage[colorlinks, linkcolor=red, anchorcolor=purple, citecolor=blue]{hyperref}
 \usepackage{hyperref}
+
+\newlength\myindent
+\setlength\myindent{2em}
+\newcommand\bindent{%
+  \begingroup
+  \setlength{\itemindent}{\myindent}
+  \addtolength{\algorithmicindent}{\myindent}
+}
+\newcommand\eindent{\endgroup}
 
 \usepackage{multicol}
 \setlength{\columnsep}{1cm}
@@ -42,7 +53,7 @@
 \pagestyle{fancy}
 \lhead{CS 578} % Top left header
 \chead{}
-\rhead{Homework0} % Top right header
+\rhead{Homework3} % Top right header
 \lfoot{} % Bottom left footer
 \cfoot{} % Bottom center footer
 \rfoot{Page\ \thepage\ of\ \protect\pageref{LastPage}} % Bottom right footer
@@ -55,11 +66,11 @@
 %\setlength\parindent{0pt} % Removes all indentation from paragraphs
 
 \title{
-\textbf{CS57800: Statistical Machine Learning} \\ \textsc{Homework 1} \\
+\textbf{CS57800: Statistical Machine Learning} \\ \textsc{Homework 3} \\
 \normalsize\vspace{0.1in}
 }
 
-\date{Due: October\ 05,\ 2018 on Friday}
+\date{Due: Nov\ 13,\ 2018 on Tuesday}
 %----------------------------------------------------------------------------------------
 
 \begin{document}
@@ -67,11 +78,101 @@
 \maketitle
 %\thispagestyle{empty}
 
-\section{First}
+\section{Open Ended Questions}
 \subsection{first}
-...
+The gradient of the loss function can be calculated as follows:\\
+\begin{itemize}
+\item The Loss function is $$L = -\sum_{n} y^{i} \log (g(w,x_i)) + (1-y^i) \log (1-g(w,x_i))$$
+\item Now to calculate the gradient, we take the derivative of Loss function with respect to weight vector $w$. We know that derivative with respect to $w$ is sum of partial derivatives with respect to $w_1,w_2... w_k$.
+\item For demonstration, we calculate derivative with respect to $w_1$. Now, this will be the gradient for weight component $w_1$. Similarly, we can find gradients for all other components.
+\item Now, $$\frac{\partial L}{\partial w_1} = -\sum_{n} y_i (\frac{(1+e^{-z})^{-2} e^{-z} x_1}{g(w,x_i)}) + (1-y_i) (\frac{(1+e^{-z})^{-2} (-e^{-z}) x_1}{(1-g(w,x_i))})$$
+\item This can be simplified to 
+$$\frac{\partial L}{\partial w_1} = -\sum_{n} (\frac{y_i(1+e^{-z})} {1+e^{-z}} x_1 - \frac{x_1}{1+e^{-z}})$$
+\item i.e.  $$\frac{\partial L}{\partial w_1} = -\sum_{n} (y_i - g(w,x_i))x_1$$
+\item Therefore, we have the gradient as $$\delta w_1 = \sum_{n} (g(w,x_i)-y_i)x_1$$ for batch gradient descent.\\
+\item For stochastic gradient descent, we update weights every example, so it will be $$\delta w_1 = (g(w,x_i)-y_i)x_1$$ after every example i.
+\end{itemize}
 
-\section{Second}
+\subsection{second}
+
+\subsection{third}
+Regularization is basically a way to avoid overfitting our model on the training data. In other words, there will be some noisy data set in our training examples and we want to avoid overfitting on those noisy examples so that we can generalize well during test time. Regularization avoids having model with high weight values for all features so as to get very high accuracy on training examples. In other words, the regularization term penalizes for higher weight values and encourages the model to give higher weight values to features only when they help in generalizing on a large number of training examples rather than few noisy points. L1 regularization can help in direct feature selection since the optimal points encourage the model to have some features with weight 0.
+
+\subsection{fourth}
+So, as we can see in our derivation in the first part, there will be one more term i.e. $$\frac {1}{2} \lambda \| w^{2} \| $$ added to the loss function. So, we directly add the derivative of this term with respect to $w_1,w_2...w_k$ for respective gradients. Thus, The gradient for $w_1$ will be
+$$\delta w_1 = \sum_{n} (g(w,x_i)-y_i)x_1 + \lambda w_1$$
+
+\subsection{fifth}
+Now, the intuition behind knowing if our model has converged is based on if the training loss is sufficiently low so that our model is not underfitting on the training data and is also performing well on the validation dataset. In our scenario, one way of knowing if the training loss is sufficiently low is knowing the delta loss by comparing the loss from the previous epoch with that of the loss of current epoch. If the difference in the change in loss is very low and the number of epochs is high, then this is a sufficient condition to know that our model has converged on the training dataset.\\
+The stopping criteria which I have used for batch gradient descent is the delta loss to be less than $8 * 10^{-5}$ and the number of epochs to be greater than $100$ i.e. atleast 100 complete passes on the entire training data set of 10,000 examples.\\
+For stochastic gradient descent, we expect the function to converge faster since we are doing weight updates after every example. So, for SGD, I have used the stopping criteria to be delta loss to be less than $2*10^{-4}$ and number of epochs to be greater than $200$. Note, that in SGD, I consider one epoch to be $1000$ examples as suggested by the TA. Since, we will be printing too many outputs if we consider 1 epoch to be just 1 example. So, that means that SGD converges after just $20$ complete passes on the entire training data set of 10,000 examples.
+
+\subsection{sixth}
+The bias term will help our activation function to shift towards right or left which can be useful in training our model. To understand this, we can visualize that as we change the values of weights for the features $x_1,x_2$ and so on, we are actually changing the steepness of the sigmoid curve. Now, there may be scenarios where we would just want to shift this curve towards right or left so that on a particular value of the features $x_i$, we want the function to give a specific value. Now, the usefulness of bias term is that depending on the weight corresponding to the bias term, we can shift the sigmoid curve to the left or towards the right thus exhibiting desired behavior.\\
+
+Thus, I believe that its useful so for type 1 feature set, my feature vector is of dimension 785 and for type 2 feature set, my feature vector is of dimension 197.
+\section{Batch Gradient Descent with Logistic Function}
+\subsection{Write down the batch gradient descent algorithm with logistic function in appro- priate algorithmic format in LATEX}
+\begin{algorithm}
+\caption{Batch Gradient Descent with Logistic Function}\label{euclid}
+\begin{algorithmic}[1]
+\Procedure{UpdateWeights}{weight, theta, features, learning\_rate, label}
+
+    \State z = np.dot(theta, features)
+    \State prediction = sigmoid(z)
+    \For{\text{i in features}}
+    \State \text{weight[i] = learning\_rate * (prediction - label) * features[i]}
+    \EndFor 
+    \State return weight
+  
+\EndProcedure
+\Procedure{FindLoss}{classifier\_weight, features, y}
+\State z = np.dot(classifier\_weight, features)
+\State \text{h = sigmoid(z)}
+\State return [ - y * np.log(h) - (1 -y) * np.log(1-h) ]
+
+\EndProcedure
+\Procedure{FindAccuracy}{dataset, classifiers}
+\For{\text{each \emph{feature, label} in dataset}}
+   \For{\text{each classifier\_weight in classifiers}}
+   \State \text{predict label and append it to list X}
+\EndFor
+\State \text{find max in X and get the corresponding classifier index}
+\State \text{if it matches with \emph{label} then increment accuracy}
+\EndFor
+\State\text{return accuracy/len(dateset)}
+\EndProcedure
+\Procedure{GradientDescent}{train\_data, max_epochs, learning_rate, lambda, test\_data}
+
+    \State \text{data_size = len(train_data)}
+    \State \text{feature_length = train\_data.shape[1] i.e. we figure out from the shape of train\_data whether its of type 1 or type 2}
+    \State \text{randomly initialize the weights by small values i.e. weights = np.random.uniform(-0.1,0.1,[10, feature_length])}
+     
+    \State \text{create list \emph{classifiers} of size 10 with each item as a vector of size SZ}
+    \State learning\_rate = 1
+    \State epochs = 100
+    \State lambda = 0.2
+    \For{\text{i in epochs}}
+    \State \text{create list \emph{loss} of size 10 initialized to 0}
+      \For{\text{each \emph{index, classifier\_weight} in enumerate(classifiers)}}
+      \State \text{initialize \emph{init\_weight} of size SZ to 0}
+        \For{\text{each \emph{feature, label} in train\_set}}
+        \State \text{y = 1 if \emph{label} == \emph{index} else y = 0}
+        \State \text{weight = UpdateWeights(init\_weight, classifier\_weight, feature, learning\_rate, y)}
+        \EndFor
+        \For{\text{each \emph{feature} in train\_set}}
+        \State \text{y = 1 if \emph{label} == \emph{index} else y = 0}
+        \State\text{loss[index] += FindLoss(feature, classifier, y)}
+        \EndFor
+      \EndFor
+    
+     \State \text{print average\_loss as sum(loss)/(10 * size of dataset)}
+    \State\text{print train accuracy as  FindAccuracy(train\_set, classifiers) }
+    \State\text{print test accuracy as FindAccuracy(test\_set, classifiers) }
+    \EndFor 
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 ...
 
 %\nocite{*}
