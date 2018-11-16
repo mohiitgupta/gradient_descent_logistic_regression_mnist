@@ -55,7 +55,7 @@ def main(argv):
         else:
             lamda = 0
         
-        print "lamda is ", lamda, " feature_type is ", feature_type
+        # print "lamda is ", lamda, " feature_type is ", feature_type
 
         train_data = preprocess(path + '/train-images-idx3-ubyte.gz', path + '/train-labels-idx1-ubyte.gz', feature_type)
         test_data = preprocess(path + '/t10k-images-idx3-ubyte.gz', path + '/t10k-labels-idx1-ubyte.gz', feature_type)
@@ -63,7 +63,7 @@ def main(argv):
         gd_weights, epoch_axis, train_accuracy_axis, test_accuracy_axis = train_gd(train_data[:10000], epochs, learning_rate, lamda, test_data)
         # test_prediction, test_labels, test_accuracy = inference(test_data_type1, gd_weights)
 
-        plot_learning_curves('Epoch', epoch_axis, train_accuracy_axis, test_accuracy_axis, 'gd-' + feature_type + '-reg-' + argv[0])
+        plot_learning_curves('Epoch', epoch_axis, train_accuracy_axis, test_accuracy_axis, 'convergence')
 
 
 if __name__ == '__main__':
