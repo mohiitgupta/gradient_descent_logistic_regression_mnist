@@ -1,5 +1,6 @@
-import matplotlib.pyplot as plt
 import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
 mpl.rcParams['figure.figsize'] = (7,7)
 
 def plot_learning_curves(x_axis_label, x_axis, y_axis_1, y_axis_2, type):
@@ -10,4 +11,3 @@ def plot_learning_curves(x_axis_label, x_axis, y_axis_1, y_axis_2, type):
     plt.ylabel('Accuracy')
     plt.title('Accuracy v/s ' + x_axis_label)
     plt.savefig(type,dpi=300)
-    plt.show() 
